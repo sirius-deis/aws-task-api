@@ -29,7 +29,7 @@ export const getProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: 500, message: error });
+      return formatJSONResponse({ statusCode: 404, message: error });
     }
   },
 );
@@ -58,6 +58,43 @@ export const addProduct = middyfy(
       });
     } catch (error) {
       return formatJSONResponse({ statusCode: 500, message: error });
+    }
+  },
+);
+
+export const deleteProduct = middyfy(
+  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    const id = event.pathParameters.id;
+
+    try {
+      await productService.deleteProduct(id);
+
+      return formatJSONResponse({
+        statusCode: 204,
+        headers,
+      });
+    } catch (error) {
+      return formatJSONResponse({ statusCode: 404, message: error });
+    }
+  },
+);
+
+export const updateProduct = middyfy(
+  async (event: APIGatewayProxyEvent & EventBody): Promise<APIGatewayProxyResult> => {
+    const id = event.pathParameters.id;
+
+    const { title, price } = event.body;
+
+    try {
+      const updatedProduct = await productService.updateProduct(id, { title, price });
+
+      return formatJSONResponse({
+        statusCode: 200,
+        body: { updatedProduct },
+        headers,
+      });
+    } catch (error) {
+      return formatJSONResponse({ statusCode: 404, message: error });
     }
   },
 );

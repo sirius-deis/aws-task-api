@@ -1,6 +1,12 @@
 import type { AWS } from '@serverless/typescript';
 
-import { getAllProducts, getProduct, addProduct } from '@functions/product';
+import {
+  getAllProducts,
+  getProduct,
+  addProduct,
+  deleteProduct,
+  updateProduct,
+} from '@functions/product';
 
 const serverlessConfiguration: AWS = {
   service: 'aws-task-api',
@@ -37,7 +43,7 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { getAllProducts, getProduct, addProduct },
+  functions: { getAllProducts, getProduct, addProduct, deleteProduct, updateProduct },
   package: { individually: true },
   custom: {
     esbuild: {

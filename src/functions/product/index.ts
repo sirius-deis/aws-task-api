@@ -35,3 +35,27 @@ export const addProduct = {
     },
   ],
 };
+
+export const deleteProduct = {
+  handler: `${handlerPath(__dirname)}/handler.deleteProduct`,
+  events: [
+    {
+      http: {
+        method: 'delete',
+        path: 'items/{id}',
+      },
+    },
+  ],
+};
+
+export const updateProduct = {
+  handler: `${handlerPath(__dirname)}/handler.updateProduct`,
+  events: [
+    {
+      http: {
+        method: 'patch',
+        path: 'items/{id}',
+      },
+    },
+  ],
+};

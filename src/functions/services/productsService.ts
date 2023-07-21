@@ -43,4 +43,44 @@ export default class ProductService {
 
     return product;
   }
+
+  async deleteProduct(id: string): Promise<void> {
+    await this.getProduct(id);
+
+    await this.docClient
+      .delete({
+        TableName: this.tableName,
+        Key: {
+          id,
+        },
+      })
+      .promise();
+  }
+
+  async updateProduct(
+    id: string,
+    fieldsToUpdate: { title?: string; price?: number },
+  ): Promise<productSchema | never> {
+    await this.getProduct(id);
+
+    const updatedProduct = await this.docClient
+      .update({
+        TableName: this.tableName,
+        Key: { id },
+        UpdateExpression: `set ${Object.keys(fieldsToUpdate)
+          .map((key) => `#${key} = :${key}`)
+          .join(', ')}`,
+        ExpressionAttributeNames: Object.keys(fieldsToUpdate).reduce(
+          (acc, key) => ({ ...acc, [`#${key}`]: key }),
+          {},
+        ),
+        ExpressionAttributeValues: Object.entries(fieldsToUpdate).reduce(
+          (acc, [key, value]) => ({ ...acc, [`:${key}`]: value }),
+          {},
+        ),
+        ReturnValues: 'ALL_NEW',
+      })
+      .promise();
+    return updatedProduct.Attributes as productSchema;
+  }
 }
