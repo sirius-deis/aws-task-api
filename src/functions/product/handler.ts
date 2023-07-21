@@ -29,7 +29,7 @@ export const getProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: 404, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
     }
   },
 );
@@ -46,7 +46,7 @@ export const addProduct = middyfy(
     try {
       const product = await productService.createProduct({
         id: uuidv4(),
-        title: event.body.title,
+        title: event.body.title.trim(),
         price: event.body.price,
         createdAt: Date.now(),
       });
@@ -57,7 +57,7 @@ export const addProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: 500, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
     }
   },
 );
@@ -74,7 +74,7 @@ export const deleteProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: 404, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
     }
   },
 );
@@ -86,7 +86,7 @@ export const updateProduct = middyfy(
     const { title, price } = event.body;
 
     try {
-      const updatedProduct = await productService.updateProduct(id, { title, price });
+      const updatedProduct = await productService.updateProduct(id, { title: title.trim(), price });
 
       return formatJSONResponse({
         statusCode: 200,
@@ -94,7 +94,7 @@ export const updateProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: 404, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
     }
   },
 );

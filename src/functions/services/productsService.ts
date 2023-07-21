@@ -1,10 +1,17 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import productSchema from '../schemas/product';
+import AppError from '@functions/utils/appError';
 
 export default class ProductService {
   private tableName: string = 'products';
 
   constructor(private docClient: DocumentClient) {}
+
+  private validateInput(title: string, price: number): void | never {
+    if (title.length < 4 || title.length > 256 || price < 1) {
+      throw new AppError('Input does not pass validation', 400);
+    }
+  }
 
   async getAllProducts(): Promise<productSchema[]> {
     const products = await this.docClient
@@ -27,13 +34,15 @@ export default class ProductService {
       .promise();
 
     if (!product.Item) {
-      throw new Error('Provided id does not exist');
+      throw new AppError('Provided id does not exist', 404);
     }
 
     return product.Item as productSchema;
   }
 
   async createProduct(product: productSchema): Promise<productSchema> {
+    this.validateInput(product.title, product.price);
+
     await this.docClient
       .put({
         TableName: this.tableName,
@@ -62,6 +71,7 @@ export default class ProductService {
     fieldsToUpdate: { title?: string; price?: number },
   ): Promise<productSchema | never> {
     await this.getProduct(id);
+    this.validateInput(fieldsToUpdate.title, fieldsToUpdate.price);
 
     const updatedProduct = await this.docClient
       .update({

@@ -6,7 +6,7 @@ export const getAllProducts = {
     {
       http: {
         method: 'get',
-        path: 'items',
+        path: 'products',
       },
     },
   ],
@@ -18,7 +18,7 @@ export const getProduct = {
     {
       http: {
         method: 'get',
-        path: 'items/{id}',
+        path: 'products/{id}',
       },
     },
   ],
@@ -30,7 +30,7 @@ export const addProduct = {
     {
       http: {
         method: 'post',
-        path: 'items',
+        path: 'products',
       },
     },
   ],
@@ -42,7 +42,7 @@ export const deleteProduct = {
     {
       http: {
         method: 'delete',
-        path: 'items/{id}',
+        path: 'products/{id}',
       },
     },
   ],
@@ -54,7 +54,7 @@ export const updateProduct = {
     {
       http: {
         method: 'patch',
-        path: 'items/{id}',
+        path: 'products/{id}',
       },
     },
   ],
