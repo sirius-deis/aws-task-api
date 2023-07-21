@@ -1,5 +1,14 @@
 import { handlerPath } from '@libs/handler-resolver';
 
+const inputType = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    price: { type: 'number' },
+  },
+  required: ['title', 'price'],
+};
+
 export const getAllProducts = {
   handler: `${handlerPath(__dirname)}/handler.getAllProducts`,
   events: [
@@ -31,6 +40,11 @@ export const addProduct = {
       http: {
         method: 'post',
         path: 'products',
+        request: {
+          schemas: {
+            'application/json': inputType,
+          },
+        },
       },
     },
   ],
@@ -55,6 +69,11 @@ export const updateProduct = {
       http: {
         method: 'patch',
         path: 'products/{id}',
+        request: {
+          schemas: {
+            'application/json': inputType,
+          },
+        },
       },
     },
   ],

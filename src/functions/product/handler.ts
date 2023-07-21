@@ -29,7 +29,7 @@ export const getProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error.message });
     }
   },
 );
@@ -57,7 +57,7 @@ export const addProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error.message });
     }
   },
 );
@@ -74,7 +74,7 @@ export const deleteProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error.message });
     }
   },
 );
@@ -94,7 +94,7 @@ export const updateProduct = middyfy(
         headers,
       });
     } catch (error) {
-      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error });
+      return formatJSONResponse({ statusCode: error.statusCode || 500, message: error.message });
     }
   },
 );
