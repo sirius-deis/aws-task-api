@@ -1,5 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
+import { getAllProducts, getProduct, addProduct } from '@functions/product';
+
 const serverlessConfiguration: AWS = {
   service: 'aws-task-api',
   frameworkVersion: '3',
@@ -7,6 +9,7 @@ const serverlessConfiguration: AWS = {
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
+    region: 'eu-central-1',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -15,9 +18,26 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
     },
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: [
+              'dynamodb:Scan',
+              'dynamodb:GetItem',
+              'dynamodb:PutItem',
+              'dynamodb:UpdateItem',
+              'dynamodb:DeleteItem',
+            ],
+            Resource: 'arn:aws:dynamodb:eu-central-1:*:table/products',
+          },
+        ],
+      },
+    },
   },
   // import the function via paths
-  functions: {},
+  functions: { getAllProducts, getProduct, addProduct },
   package: { individually: true },
   custom: {
     esbuild: {
@@ -29,6 +49,32 @@ const serverlessConfiguration: AWS = {
       define: { 'require.resolve': undefined },
       platform: 'node',
       concurrency: 10,
+    },
+  },
+  resources: {
+    Resources: {
+      productsTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: 'products',
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S',
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'id',
+              KeyType: 'HASH',
+            },
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1,
+          },
+        },
+      },
     },
   },
 };
