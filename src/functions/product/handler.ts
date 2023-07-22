@@ -15,7 +15,7 @@ export const getAllProducts = middyfy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     let sortParameter;
 
-    if (['price', 'createdAt'].includes(event.queryStringParameters.sort)) {
+    if (['price', 'createdAt'].includes(event.queryStringParameters?.sort)) {
       sortParameter = event.queryStringParameters.sort;
     }
 
