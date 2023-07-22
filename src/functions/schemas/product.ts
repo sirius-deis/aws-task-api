@@ -3,4 +3,5 @@ export default interface Product {
   title: string;
   price: number;
   createdAt?: number;
+  category: string;
 }

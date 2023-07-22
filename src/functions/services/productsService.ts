@@ -7,20 +7,30 @@ export default class ProductService {
 
   constructor(private docClient: DocumentClient) {}
 
-  private validateInput(title: string, price: number): void | never {
-    if (title.length < 4 || title.length > 256 || price < 1) {
+  private validateInput(title: string, price: number, category: string): void | never {
+    if (
+      title.length < 4 ||
+      title.length > 256 ||
+      price < 1 ||
+      category.length < 4 ||
+      category.length > 36
+    ) {
       throw new AppError('Input does not pass validation', 400);
     }
   }
 
-  async getAllProducts(): Promise<productSchema[]> {
+  async getAllProducts(sortField: 'createdAt' | 'price' = 'createdAt'): Promise<productSchema[]> {
     const products = await this.docClient
       .scan({
         TableName: this.tableName,
       })
       .promise();
 
-    return products.Items as productSchema[];
+    const sortedProducts = (products.Items as productSchema[]).sort(
+      (p1, p2) => p1[sortField] - p2[sortField],
+    );
+
+    return sortedProducts;
   }
 
   async getProduct(id: string): Promise<productSchema | never> {
@@ -41,7 +51,7 @@ export default class ProductService {
   }
 
   async createProduct(product: productSchema): Promise<productSchema> {
-    this.validateInput(product.title, product.price);
+    this.validateInput(product.title, product.price, product.category);
 
     await this.docClient
       .put({
@@ -68,10 +78,10 @@ export default class ProductService {
 
   async updateProduct(
     id: string,
-    fieldsToUpdate: { title?: string; price?: number },
+    fieldsToUpdate: { title?: string; price?: number; category: string },
   ): Promise<productSchema | never> {
     await this.getProduct(id);
-    this.validateInput(fieldsToUpdate.title, fieldsToUpdate.price);
+    this.validateInput(fieldsToUpdate.title, fieldsToUpdate.price, fieldsToUpdate.category);
 
     const updatedProduct = await this.docClient
       .update({

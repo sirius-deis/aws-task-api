@@ -5,8 +5,9 @@ const inputType = {
   properties: {
     title: { type: 'string' },
     price: { type: 'number' },
+    category: { type: 'string' },
   },
-  required: ['title', 'price'],
+  required: ['title', 'price', 'category'],
 };
 
 export const getAllProducts = {
