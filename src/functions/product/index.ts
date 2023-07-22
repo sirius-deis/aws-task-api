@@ -15,7 +15,8 @@ export const getAllProducts = {
     {
       http: {
         method: 'get',
-        path: 'products',
+        path: 'products/',
+        cors: true,
       },
     },
   ],
@@ -28,6 +29,7 @@ export const getProduct = {
       http: {
         method: 'get',
         path: 'products/{id}',
+        cors: true,
       },
     },
   ],
@@ -39,7 +41,8 @@ export const addProduct = {
     {
       http: {
         method: 'post',
-        path: 'products',
+        path: 'products/',
+        cors: true,
         request: {
           schemas: {
             'application/json': inputType,
@@ -57,6 +60,7 @@ export const deleteProduct = {
       http: {
         method: 'delete',
         path: 'products/{id}',
+        cors: true,
       },
     },
   ],
@@ -69,6 +73,7 @@ export const updateProduct = {
       http: {
         method: 'patch',
         path: 'products/{id}',
+        cors: true,
         request: {
           schemas: {
             'application/json': inputType,
