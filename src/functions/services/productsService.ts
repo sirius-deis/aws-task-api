@@ -12,7 +12,7 @@ export default class ProductService {
       title.length < 4 ||
       title.length > 256 ||
       price < 1 ||
-      category.length < 4 ||
+      category.length < 2 ||
       category.length > 36
     ) {
       throw new AppError('Input does not pass validation', 400);
