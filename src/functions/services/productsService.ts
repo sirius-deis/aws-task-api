@@ -28,7 +28,7 @@ export default class ProductService {
   async getAllProducts(
     sortField: SORT_OPTIONS = SORT_OPTIONS.CREATED_AT,
     nextPageKey?: string,
-  ): Promise<{ products: productSchema[]; total?: number; nextPageKey?: string }> {
+  ): Promise<{ products: productSchema[]; total: number; nextPageKey?: string }> {
     const dbParams = {
       TableName: this.TABLE_NAME,
       Limit: this.PAGE_SIZE,
@@ -38,7 +38,10 @@ export default class ProductService {
       dbParams['ExclusiveStartKey'] = JSON.parse(Buffer.from(nextPageKey, 'base64').toString());
     }
 
-    const products = await this.docClient.scan(dbParams).promise();
+    const [products, count] = await Promise.all([
+      this.docClient.scan(dbParams).promise(),
+      this.docClient.scan({ TableName: this.TABLE_NAME, Select: 'COUNT' }).promise(),
+    ]);
 
     const sortedProducts = (products.Items as productSchema[]).sort(
       (p1, p2) => p1[sortField] - p2[sortField],
@@ -46,7 +49,7 @@ export default class ProductService {
 
     return {
       products: sortedProducts,
-      total: products.Count || 0,
+      total: count.Count,
       nextPageKey: products.LastEvaluatedKey
         ? Buffer.from(JSON.stringify(products.LastEvaluatedKey)).toString('base64')
         : undefined,
@@ -62,6 +65,8 @@ export default class ProductService {
         },
       })
       .promise();
+
+    this.docClient.query({ TableName: this.TABLE_NAME }).promise();
 
     if (!product.Item) {
       throw new AppError('Provided id does not exist', 404);
