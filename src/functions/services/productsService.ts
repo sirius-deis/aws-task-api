@@ -8,7 +8,8 @@ export enum SORT_OPTIONS {
 }
 
 export default class ProductService {
-  private tableName: string = 'products';
+  private TABLE_NAME: string = 'products';
+  private PAGE_SIZE = 3;
 
   constructor(private docClient: DocumentClient) {}
 
@@ -26,24 +27,36 @@ export default class ProductService {
 
   async getAllProducts(
     sortField: SORT_OPTIONS = SORT_OPTIONS.CREATED_AT,
-  ): Promise<productSchema[]> {
-    const products = await this.docClient
-      .scan({
-        TableName: this.tableName,
-      })
-      .promise();
+    nextPageKey?: string,
+  ): Promise<{ products: productSchema[]; total?: number; nextPageKey?: string }> {
+    const dbParams = {
+      TableName: this.TABLE_NAME,
+      Limit: this.PAGE_SIZE,
+    };
+
+    if (nextPageKey) {
+      dbParams['ExclusiveStartKey'] = JSON.parse(Buffer.from(nextPageKey, 'base64').toString());
+    }
+
+    const products = await this.docClient.scan(dbParams).promise();
 
     const sortedProducts = (products.Items as productSchema[]).sort(
       (p1, p2) => p1[sortField] - p2[sortField],
     );
 
-    return sortedProducts;
+    return {
+      products: sortedProducts,
+      total: products.Count || 0,
+      nextPageKey: products.LastEvaluatedKey
+        ? Buffer.from(JSON.stringify(products.LastEvaluatedKey)).toString('base64')
+        : undefined,
+    };
   }
 
   async getProduct(id: string): Promise<productSchema | never> {
     const product = await this.docClient
       .get({
-        TableName: this.tableName,
+        TableName: this.TABLE_NAME,
         Key: {
           id,
         },
@@ -62,7 +75,7 @@ export default class ProductService {
 
     await this.docClient
       .put({
-        TableName: this.tableName,
+        TableName: this.TABLE_NAME,
         Item: product,
       })
       .promise();
@@ -75,7 +88,7 @@ export default class ProductService {
 
     await this.docClient
       .delete({
-        TableName: this.tableName,
+        TableName: this.TABLE_NAME,
         Key: {
           id,
         },
@@ -92,7 +105,7 @@ export default class ProductService {
 
     const updatedProduct = await this.docClient
       .update({
-        TableName: this.tableName,
+        TableName: this.TABLE_NAME,
         Key: { id },
         UpdateExpression: `set ${Object.keys(fieldsToUpdate)
           .map((key) => `#${key} = :${key}`)

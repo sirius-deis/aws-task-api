@@ -12,11 +12,14 @@ export const getAllProducts = middyfy(
       sortParameter = event.queryStringParameters.sort;
     }
 
-    const products = await productService.getAllProducts(sortParameter);
+    const result = await productService.getAllProducts(
+      sortParameter,
+      event.queryStringParameters?.nextPageKey,
+    );
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ products }),
+      body: JSON.stringify(result),
     };
   }),
 );
