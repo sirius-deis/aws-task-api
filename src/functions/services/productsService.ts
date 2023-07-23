@@ -2,14 +2,9 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import productSchema from '../schemas/product';
 import AppError from '@functions/utils/appError';
 
-export enum SORT_OPTIONS {
-  PRICE = 'price',
-  CREATED_AT = 'createdAt',
-}
-
 export default class ProductService {
   private TABLE_NAME: string = 'products';
-  private PAGE_SIZE = 3;
+  private PAGE_SIZE = 5;
 
   constructor(private docClient: DocumentClient) {}
 
@@ -26,7 +21,6 @@ export default class ProductService {
   }
 
   async getAllProducts(
-    sortField: SORT_OPTIONS = SORT_OPTIONS.CREATED_AT,
     nextPageKey?: string,
   ): Promise<{ products: productSchema[]; total: number; nextPageKey?: string }> {
     const dbParams = {
@@ -43,12 +37,8 @@ export default class ProductService {
       this.docClient.scan({ TableName: this.TABLE_NAME, Select: 'COUNT' }).promise(),
     ]);
 
-    const sortedProducts = (products.Items as productSchema[]).sort(
-      (p1, p2) => p1[sortField] - p2[sortField],
-    );
-
     return {
-      products: sortedProducts,
+      products: products.Items as productSchema[],
       total: count.Count,
       nextPageKey: products.LastEvaluatedKey
         ? Buffer.from(JSON.stringify(products.LastEvaluatedKey)).toString('base64')
@@ -65,8 +55,6 @@ export default class ProductService {
         },
       })
       .promise();
-
-    this.docClient.query({ TableName: this.TABLE_NAME }).promise();
 
     if (!product.Item) {
       throw new AppError('Provided id does not exist', 404);

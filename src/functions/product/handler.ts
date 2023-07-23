@@ -6,16 +6,7 @@ import catchAndHeadersMiddleware from '@functions/utils/catchAndHeadersHandler';
 
 export const getAllProducts = middyfy(
   catchAndHeadersMiddleware(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    let sortParameter;
-
-    if (['price', 'createdAt'].includes(event.queryStringParameters?.sort)) {
-      sortParameter = event.queryStringParameters.sort;
-    }
-
-    const result = await productService.getAllProducts(
-      sortParameter,
-      event.queryStringParameters?.nextPageKey,
-    );
+    const result = await productService.getAllProducts(event.queryStringParameters?.nextPageKey);
 
     return {
       statusCode: 200,
