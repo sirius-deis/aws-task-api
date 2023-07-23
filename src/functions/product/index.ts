@@ -72,7 +72,7 @@ export const updateProduct = {
   events: [
     {
       http: {
-        method: 'patch',
+        method: 'put',
         path: 'products/{id}',
         cors: true,
         request: {

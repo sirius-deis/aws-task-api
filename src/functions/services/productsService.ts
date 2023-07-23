@@ -2,6 +2,11 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import productSchema from '../schemas/product';
 import AppError from '@functions/utils/appError';
 
+export enum SORT_OPTIONS {
+  PRICE = 'price',
+  CREATED_AT = 'createdAt',
+}
+
 export default class ProductService {
   private tableName: string = 'products';
 
@@ -19,7 +24,9 @@ export default class ProductService {
     }
   }
 
-  async getAllProducts(sortField: 'createdAt' | 'price' = 'createdAt'): Promise<productSchema[]> {
+  async getAllProducts(
+    sortField: SORT_OPTIONS = SORT_OPTIONS.CREATED_AT,
+  ): Promise<productSchema[]> {
     const products = await this.docClient
       .scan({
         TableName: this.tableName,
